@@ -18,6 +18,10 @@ useHead({
       type: "image/png",
       href: "/btc.png",
     },
+    {
+      rel: "apple-touch-icon",
+      href: "/btc.png",
+    },
   ],
   meta: [
     {
@@ -26,82 +30,19 @@ useHead({
     },
   ],
 });
-import { reactive, onMounted, onUnmounted } from "vue";
-
+import { usePrices } from "../server/api/composables";
+const { prices, initialize, connectWS, getChangeColor } = usePrices();
+// Server'dan ilk veriyi çek
 const { data: initialData } = await useFetch("/api/prices");
-
-// Reaktif state: Gelen veriye status alanı ekleyerek initialize ediyoruz
-const prices = reactive({});
-const initializePrices = (data) => {
-  if (!data) return;
-  Object.keys(data).forEach((key) => {
-    prices[key] = { ...data[key], status: "" };
-  });
-};
-initializePrices(initialData.value);
-
-let socket = null;
-const getChangeColor = (change) =>
-  change >= 0 ? "text-green-400" : "text-red-400";
-
-const triggerFlash = (key, newPrice, oldPrice) => {
-  if (!prices[key]) return;
-  if (newPrice > oldPrice) prices[key].status = "up";
-  else if (newPrice < oldPrice) prices[key].status = "down";
-  setTimeout(() => {
-    if (prices[key]) prices[key].status = "";
-  }, 300);
-};
+initialize(initialData.value);
 
 onMounted(() => {
-  // Eğer prices boşsa, takip edilecek varsayılan bir liste oluştur (Fallback)
   const symbols =
-    Object.keys(prices).length > 0
-      ? Object.keys(prices)
-      : [
-          "btc",
-          "eth",
-          "bnb",
-          "sol",
-          "xrp",
-          "ada",
-          "doge",
-          "avax",
-          "dot",
-          "trx",
-        ];
+    Object.keys(prices).length > 0 ? Object.keys(prices) : ["btc", "eth"];
+  const socket = connectWS(symbols);
 
-  const streamList = symbols.map((key) => `${key}usdt@ticker`).join("/");
-
-  socket = new WebSocket(
-    `wss://stream.binance.com:9443/stream?streams=${streamList}`,
-  );
-
-  socket.onmessage = (event) => {
-    const { data } = JSON.parse(event.data);
-    const key = data.s.replace("USDT", "").toLowerCase();
-
-    const newPrice = parseFloat(data.c);
-    const newChange = parseFloat(data.P);
-
-    // EĞER COIN OBJEDE YOKSA OLUŞTUR (Kritik Fix)
-    if (!prices[key]) {
-      prices[key] = {
-        name: key.toUpperCase(),
-        usd: newPrice,
-        usd_24h_change: newChange,
-        status: "",
-      };
-    } else {
-      // Varsa güncelle ve flash efektini tetikle
-      triggerFlash(key, newPrice, prices[key].usd);
-      prices[key].usd = newPrice;
-      prices[key].usd_24h_change = newChange;
-    }
-  };
+  onUnmounted(() => socket?.close());
 });
-
-onUnmounted(() => socket?.close());
 </script>
 
 <template>
