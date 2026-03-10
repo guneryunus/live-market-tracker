@@ -30,9 +30,7 @@ useHead({
     },
   ],
 });
-import { usePrices } from "../server/api/composables";
 const { prices, initialize, connectWS, getChangeColor } = usePrices();
-// Server'dan ilk veriyi çek
 const { data: initialData } = await useFetch("/api/prices");
 initialize(initialData.value);
 
