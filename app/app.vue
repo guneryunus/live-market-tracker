@@ -37,8 +37,10 @@ const { data: initialData } = await useFetch("/api/prices");
 initialize(initialData.value);
 
 onMounted(() => {
-  const symbols =
-    Object.keys(prices).length > 0 ? Object.keys(prices) : ["btc", "eth"];
+  const symbols = initialData.value
+    ? Object.keys(initialData.value)
+    : ["btc", "eth", "bnb", "sol", "xrp", "ada", "doge", "avax", "dot", "trx"];
+
   const socket = connectWS(symbols);
 
   onUnmounted(() => socket?.close());
