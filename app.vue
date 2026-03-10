@@ -31,17 +31,28 @@ useHead({
   ],
 });
 const { prices, initialize, connectWS, getChangeColor } = usePrices();
-const { data: initialData } = await useFetch("/api/prices");
-initialize(initialData.value);
+
+// 1. Fetch işlemini hata kontrolü ile yapalım
+const { data: initialData, error } = await useFetch("/api/prices");
+
+// 2. Sadece veri varsa initialize et, yoksa patlamasın
+if (initialData.value) {
+  initialize(initialData.value);
+} else {
+  console.warn("API'den veri gelmedi, WebSocket bekleniyor...");
+}
 
 onMounted(() => {
+  // 3. initialData yoksa bile sistemin çalışması için fallback sembolleri
   const symbols = initialData.value
     ? Object.keys(initialData.value)
     : ["btc", "eth", "bnb", "sol", "xrp", "ada", "doge", "avax", "dot", "trx"];
 
   const socket = connectWS(symbols);
 
-  onUnmounted(() => socket?.close());
+  onUnmounted(() => {
+    if (socket) socket.close();
+  });
 });
 </script>
 
