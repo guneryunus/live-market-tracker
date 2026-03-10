@@ -16,10 +16,11 @@ useHead({
       type: "image/png",
       href: "/btc.png",
     },
+  ],
+  meta: [
     {
       name: "google-site-verification",
-      content:
-        '<meta name="google-site-verification" content="Bud5BaJKLsTOzsNIcl2Mk2zqqoNQB9kBjvHZrZcfyBg" />',
+      content: "Bud5BaJKLsTOzsNIcl2Mk2zqqoNQB9kBjvHZrZcfyBg",
     },
   ],
 });
