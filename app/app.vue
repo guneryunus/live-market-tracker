@@ -1,13 +1,15 @@
 <script setup>
 useSeoMeta({
-  title: "Canlı Kripto Fiyatları | Anlık Coin Takip Ekranı",
-  ogTitle: "Canlı Kripto Fiyatları | Anlık Coin Takip Ekranı",
+  title: "Canlı Kripto Fiyatları | Bitcoin, ETH ve Altcoin Takip | Kriptoon",
+  ogTitle: "Kriptoon - Anlık Kripto Para ve Borsa Verileri",
   description:
-    "Bitcoin, Ethereum ve en popüler 10 kripto paranın fiyatlarını saniyelik değişimlerle canlı takip edin. Reklamsız ve hızlı borsa verileri.",
+    "Bitcoin (BTC), Ethereum (ETH) ve en popüler 10 kripto paranın canlı borsa fiyatlarını, 24 saatlik değişimlerini ve anlık grafik verilerini reklamsız takip edin.",
   ogDescription:
-    "Bitcoin, Ethereum ve en popüler 10 kripto paranın fiyatlarını saniyelik değişimlerle canlı takip edin.",
-  ogImage: "/og-image.png",
+    "En popüler 10 kripto paranın fiyatlarını saniyelik değişimlerle canlı takip edin. Hızlı, reklamsız ve kullanıcı dostu kripto takip ekranı.",
+  ogImage: "https://kriptoon.com/og-image.png",
   twitterCard: "summary_large_image",
+  keywords:
+    "kripto para, canlı bitcoin fiyatı, eth takip, anlık borsa, kriptoon, altcoin fiyatları",
 });
 useHead({
   link: [
