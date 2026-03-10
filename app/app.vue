@@ -16,6 +16,11 @@ useHead({
       type: "image/png",
       href: "/btc.png",
     },
+    {
+      name: "google-site-verification",
+      content:
+        '<meta name="google-site-verification" content="Bud5BaJKLsTOzsNIcl2Mk2zqqoNQB9kBjvHZrZcfyBg" />',
+    },
   ],
 });
 import { reactive, onMounted, onUnmounted } from "vue";
@@ -172,7 +177,7 @@ onUnmounted(() => socket?.close());
       </div>
 
       <div v-else class="text-gray-500 animate-pulse mt-20">
-        Veriler senkronize ediliyor...
+        Veriler yükleniyor...
       </div>
 
       <template #placeholder>
