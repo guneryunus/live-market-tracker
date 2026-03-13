@@ -33,8 +33,16 @@ useHead({
 const { prices, initialize, connectWS, getChangeColor } = usePrices();
 
 // 1. Fetch işlemini hata kontrolü ile yapalım
-const { data: initialData, error } = await useFetch("/api/prices");
+const { data: initialData, error: fetchError } = await useFetch("/api/prices");
 
+if (fetchError.value) {
+  // Canlıda hatanın ne olduğunu tarayıcı konsolunda net görelim
+  console.error("Fetch Hatası Detayı:", {
+    statusCode: fetchError.value.statusCode,
+    statusMessage: fetchError.value.statusMessage,
+    data: fetchError.value.data,
+  });
+}
 // 2. Sadece veri varsa initialize et, yoksa patlamasın
 if (initialData.value) {
   initialize(initialData.value);

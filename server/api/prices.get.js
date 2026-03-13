@@ -1,5 +1,5 @@
 // server/api/prices.get.js
-export default defineCachedEventHandler(
+export default defineEventHandler(
   async (event) => {
     try {
       // Piyasa değerine göre popüler ilk 10 coin
