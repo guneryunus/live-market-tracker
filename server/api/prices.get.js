@@ -37,9 +37,12 @@ export default defineEventHandler(
 
       return data;
     } catch (error) {
+      const errorMessage = error.response?._data?.msg || error.message;
+
       throw createError({
         statusCode: 502,
-        statusMessage: "Binance baglantisi koptu.",
+        statusMessage: `Binance Hatası: ${errorMessage}`,
+        data: error.response?._data,
       });
     }
   },
