@@ -1,50 +1,66 @@
 // server/api/prices.get.js
-export default defineEventHandler(
+export default defineCachedEventHandler(
   async (event) => {
     try {
-      // Piyasa değerine göre popüler ilk 10 coin
-      const symbols = [
-        "BTCUSDT",
-        "ETHUSDT",
-        "BNBUSDT",
-        "SOLUSDT",
-        "XRPUSDT",
-        "ADAUSDT",
-        "DOGEUSDT",
-        "AVAXUSDT",
-        "DOTUSDT",
-        "TRXUSDT",
-      ];
+      // CoinGecko ID'leri (Piyasa değerine göre ilk 10)
+      const ids = [
+        "bitcoin",
+        "ethereum",
+        "binancecoin",
+        "solana",
+        "ripple",
+        "cardano",
+        "dogecoin",
+        "avalanche-2",
+        "polkadot",
+        "tron",
+      ].join(",");
 
+      // CoinGecko herkese açık basit fiyat API'si (IP kısıtlaması yok denecek kadar azdır)
       const response = await $fetch(
-        "https://api.binance.com/api/v3/ticker/24hr",
+        `https://api.coingecko.com/api/v3/simple/price`,
         {
-          params: { symbols: JSON.stringify(symbols) },
+          params: {
+            ids: ids,
+            vs_currencies: "usd",
+            include_24hr_change: "true",
+          },
         },
       );
 
-      // Veriyi frontend'de kolay dönebilmek için bir objeye çeviriyoruz
+      // Frontend'deki "prices" yapına uygun hale getirmek için eşleştirme (mapping)
+      const mapping = {
+        bitcoin: "btc",
+        ethereum: "eth",
+        binancecoin: "bnb",
+        solana: "sol",
+        ripple: "xrp",
+        cardano: "ada",
+        "avalanche-2": "avax",
+        dogecoin: "doge",
+        polkadot: "dot",
+        tron: "trx",
+      };
+
       const data = {};
-      response.forEach((item) => {
-        // Sembolü (BTCUSDT) daha temiz bir anahtara (BTC) çeviriyoruz
-        const cleanKey = item.symbol.replace("USDT", "").toLowerCase();
+      Object.keys(response).forEach((id) => {
+        const cleanKey = mapping[id];
         data[cleanKey] = {
           name: cleanKey.toUpperCase(),
-          usd: parseFloat(item.lastPrice),
-          usd_24h_change: parseFloat(item.priceChangePercent),
+          usd: response[id].usd,
+          usd_24h_change: response[id].usd_24h_change,
         };
       });
 
       return data;
     } catch (error) {
-      const errorMessage = error.response?._data?.msg || error.message;
-
+      console.error("Fiyat Çekme Hatası:", error.message);
       throw createError({
-        statusCode: 502,
-        statusMessage: `Binance Hatası: ${errorMessage}`,
-        data: error.response?._data,
+        statusCode: 500,
+        statusMessage:
+          "Veri kaynagina ulasilamadi. Lütfen birazdan tekrar deneyin.",
       });
     }
   },
-  { maxAge: 30, name: "top10-cache" },
+  { maxAge: 60, name: "top10-prices" }, // Cache süresini 60 saniyeye çıkarabilirsin, CoinGecko ücretsiz katmanda bunu sever.
 );
