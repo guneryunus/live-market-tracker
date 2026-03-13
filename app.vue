@@ -34,7 +34,6 @@ const { prices, initialize, connectWS, getChangeColor } = usePrices();
 
 // 1. Fetch işlemini hata kontrolü ile yapalım
 const { data: initialData, error: fetchError } = await useFetch("/api/prices");
-console.log("initialData", initialData);
 
 if (fetchError.value) {
   console.error("Fetch Hatası Detayı:", {
@@ -44,8 +43,6 @@ if (fetchError.value) {
   });
 }
 if (initialData.value) {
-  console.log("initialData.value", initialData.value);
-
   initialize(initialData.value);
 } else {
   console.warn("API'den veri gelmedi, WebSocket bekleniyor...");
