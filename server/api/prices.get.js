@@ -2,8 +2,7 @@
 export default defineCachedEventHandler(
   async (event) => {
     try {
-      // CoinGecko ID'leri (Piyasa değerine göre ilk 10)
-      const ids = [
+      const orderedIds = [
         "bitcoin",
         "ethereum",
         "binancecoin",
@@ -14,21 +13,19 @@ export default defineCachedEventHandler(
         "avalanche-2",
         "polkadot",
         "tron",
-      ].join(",");
+      ];
 
-      // CoinGecko herkese açık basit fiyat API'si (IP kısıtlaması yok denecek kadar azdır)
       const response = await $fetch(
         `https://api.coingecko.com/api/v3/simple/price`,
         {
           params: {
-            ids: ids,
+            ids: orderedIds.join(","),
             vs_currencies: "usd",
             include_24hr_change: "true",
           },
         },
       );
 
-      // Frontend'deki "prices" yapına uygun hale getirmek için eşleştirme (mapping)
       const mapping = {
         bitcoin: "btc",
         ethereum: "eth",
@@ -43,13 +40,15 @@ export default defineCachedEventHandler(
       };
 
       const data = {};
-      Object.keys(response).forEach((id) => {
-        const cleanKey = mapping[id];
-        data[cleanKey] = {
-          name: cleanKey.toUpperCase(),
-          usd: response[id].usd,
-          usd_24h_change: response[id].usd_24h_change,
-        };
+      orderedIds.forEach((id) => {
+        if (response[id]) {
+          const cleanKey = mapping[id];
+          data[cleanKey] = {
+            name: cleanKey.toUpperCase(),
+            usd: response[id].usd,
+            usd_24h_change: response[id].usd_24h_change,
+          };
+        }
       });
 
       return data;
@@ -57,10 +56,9 @@ export default defineCachedEventHandler(
       console.error("Fiyat Çekme Hatası:", error.message);
       throw createError({
         statusCode: 500,
-        statusMessage:
-          "Veri kaynagina ulasilamadi. Lütfen birazdan tekrar deneyin.",
+        statusMessage: "Veri kaynagina ulasilamadi.",
       });
     }
   },
-  { maxAge: 60, name: "top10-prices" }, // Cache süresini 60 saniyeye çıkarabilirsin, CoinGecko ücretsiz katmanda bunu sever.
+  { maxAge: 60, name: "top10-prices" },
 );

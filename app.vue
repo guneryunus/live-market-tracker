@@ -34,17 +34,18 @@ const { prices, initialize, connectWS, getChangeColor } = usePrices();
 
 // 1. Fetch işlemini hata kontrolü ile yapalım
 const { data: initialData, error: fetchError } = await useFetch("/api/prices");
+console.log("initialData", initialData);
 
 if (fetchError.value) {
-  // Canlıda hatanın ne olduğunu tarayıcı konsolunda net görelim
   console.error("Fetch Hatası Detayı:", {
     statusCode: fetchError.value.statusCode,
     statusMessage: fetchError.value.statusMessage,
     data: fetchError.value.data,
   });
 }
-// 2. Sadece veri varsa initialize et, yoksa patlamasın
 if (initialData.value) {
+  console.log("initialData.value", initialData.value);
+
   initialize(initialData.value);
 } else {
   console.warn("API'den veri gelmedi, WebSocket bekleniyor...");
